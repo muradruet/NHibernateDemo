@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Linq;
-using System.Reflection;
-using NHibernate.Cfg;
-using NHibernate.Dialect;
-using NHibernate.Driver;
+using NHibernate;
 
 namespace NhibernateDemo1
 {
@@ -11,24 +8,13 @@ namespace NhibernateDemo1
     {
         static void Main(string[] args)
         {
-            //var cfg = new Configuration();
-            //cfg.DataBaseIntegration(x =>
-            //{
-            //    x.ConnectionString = "Data Source=.;Initial Catalog=NHibernateDemo;Integrated Security=True;";
-            //    x.Driver<SqlClientDriver>();
-            //    x.Dialect<MsSql2012Dialect>();
-            //});
-            //cfg.AddAssembly(Assembly.GetExecutingAssembly());
-            //var sessionFactory = cfg.BuildSessionFactory();
-
-            var sessionFactory = new Configuration().Configure().BuildSessionFactory();
-            
-            using (var session = sessionFactory.OpenSession())
+            ISession session = NHibernateHelper.GetCurrentSession();
+            try
             {
-                using (var tx = session.BeginTransaction())
+                using (ITransaction tx = session.BeginTransaction())
                 {
                     var customers = from customer in session.Query<Customer>()
-                               select customer;
+                        select customer;
 
                     foreach (var f in customers)
                     {
@@ -37,7 +23,13 @@ namespace NhibernateDemo1
                     tx.Commit();
                 }
             }
-            Console.WriteLine("Press any key to exit..");
+            finally
+            {
+                NHibernateHelper.CloseSession();
+            }
+            
+            
+            Console.WriteLine("Press Enter to exit..");
             Console.ReadLine();
         }
     }
