@@ -11,16 +11,18 @@ namespace NhibernateDemo1
     {
         static void Main(string[] args)
         {
-            var cfg = new Configuration();
-            cfg.DataBaseIntegration(x =>
-            {
-                x.ConnectionString = "Data Source=.;Initial Catalog=NHibernateDemo;Integrated Security=True;";
-                x.Driver<SqlClientDriver>();
-                x.Dialect<MsSql2012Dialect>();
-            });
+            //var cfg = new Configuration();
+            //cfg.DataBaseIntegration(x =>
+            //{
+            //    x.ConnectionString = "Data Source=.;Initial Catalog=NHibernateDemo;Integrated Security=True;";
+            //    x.Driver<SqlClientDriver>();
+            //    x.Dialect<MsSql2012Dialect>();
+            //});
+            //cfg.AddAssembly(Assembly.GetExecutingAssembly());
+            //var sessionFactory = cfg.BuildSessionFactory();
 
-            cfg.AddAssembly(Assembly.GetExecutingAssembly());
-            var sessionFactory = cfg.BuildSessionFactory();
+            var sessionFactory = new Configuration().Configure().BuildSessionFactory();
+            
             using (var session = sessionFactory.OpenSession())
             {
                 using (var tx = session.BeginTransaction())
