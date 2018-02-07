@@ -1,8 +1,12 @@
-﻿using System.Web;
+﻿using System.Reflection;
+using System.Web;
+using FluentNHibernate.Cfg;
+using FluentNHibernate.Cfg.Db;
+using NhibernateDemo.Mapping;
 using NHibernate;
 using NHibernate.Cfg;
 
-namespace NhibernateDemo1
+namespace NhibernateDemo
 {
     class NHibernateHelper
     {
@@ -10,7 +14,11 @@ namespace NhibernateDemo1
         private static readonly ISessionFactory _sessionFactory;
         static NHibernateHelper()
         {
-            _sessionFactory = new Configuration().Configure().BuildSessionFactory();
+            //... using NHibernate configuration ...
+            // _sessionFactory = new Configuration().Configure().BuildSessionFactory();
+            
+            //... using fluent....
+            _sessionFactory = FluentConfigure();
         }
         public static ISession GetCurrentSession()
         {
@@ -46,6 +54,27 @@ namespace NhibernateDemo1
             {
                 _sessionFactory.Close();
             }
+        }
+
+        public static ISessionFactory FluentConfigure()
+        {
+            return Fluently.Configure()
+                //which database
+                .Database(
+                    MsSqlConfiguration.MsSql2012
+                        .ConnectionString(
+                            cs => cs.FromConnectionStringWithKey("DBConnection")) //connection string from app.config
+                                                                                  //.ShowSql()
+                        )
+                //2nd level cache
+                .Cache(
+                    c => c.UseQueryCache()
+                        .UseSecondLevelCache()
+                        .ProviderClass<NHibernate.Cache.HashtableCacheProvider>())
+                //find/set the mappings
+                //.Mappings(m => m.FluentMappings.AddFromAssemblyOf<CustomerMapping>())
+                .Mappings(m => m.FluentMappings.AddFromAssembly(Assembly.GetExecutingAssembly()))
+                .BuildSessionFactory();
         }
     }
 }
