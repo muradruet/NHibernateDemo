@@ -6,6 +6,7 @@ namespace NhibernateDemo.Mapping
     {
         public CustomerMapping()
         {
+            Table("Customer");
             Id(x => x.Id).GeneratedBy.Native();
             Map(x => x.Name);
             Map(x => x.Email);
